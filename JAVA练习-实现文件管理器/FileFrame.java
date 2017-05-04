@@ -1,4 +1,4 @@
-package fileManager;
+//package fileManager;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -8,9 +8,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.zip.*;
+import java.util.*;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -25,60 +28,60 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
- * 
+ *
  * @author wei
- *	ÊµÏÖÎÄ¼ş¹ÜÀíÆ÷´°¿Ú
- *	FileFrame ´°¿Ú¿ò¼Ü
- *	FileListPanel ÎÄ¼şÁĞ±íÃæ°å
- *	PathPanel Â·¾¶ÏÔÊ¾Ãæ°åºÍ°´Å¥
+ *	å®ç°æ–‡ä»¶ç®¡ç†å™¨çª—å£
+ *	FileFrame çª—å£æ¡†æ¶
+ *	FileListPanel æ–‡ä»¶åˆ—è¡¨é¢æ¿
+ *	PathPanel è·¯å¾„æ˜¾ç¤ºé¢æ¿å’ŒæŒ‰é’®
  *
  */
 
-// ´°¿Ú¿ò¼Ü
+// çª—å£æ¡†æ¶
 public class FileFrame extends JFrame{
-	
+
 	private FileListPanel filelistShow;
 	private PathPanel pathPanel;
 	private String mouseSelectFileName;
 	private MouseRightPopup popup;
-	
+
 	public FileFrame()
 	{
-		//ÀàÊµÀıÓò³õÊ¼»¯
+		//ç±»å®ä¾‹åŸŸåˆå§‹åŒ–
 		filelistShow=new FileListPanel();
 		pathPanel=new PathPanel();
 		mouseSelectFileName=new String("");
 		popup=new MouseRightPopup();
-		
-		//ÉèÖÃ´°¿Ú¹Ø±Õ·½·¨
+
+		//è®¾ç½®çª—å£å…³é—­æ–¹æ³•
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		//ÉèÖÃ´°¿ÚÎ»ÖÃºÍ´óĞ¡£¨ÓÉÏµÍ³Æ½Ì¨¾ö¶¨£©
-		Toolkit kit=Toolkit.getDefaultToolkit();  
+
+		//è®¾ç½®çª—å£ä½ç½®å’Œå¤§å°ï¼ˆç”±ç³»ç»Ÿå¹³å°å†³å®šï¼‰
+		Toolkit kit=Toolkit.getDefaultToolkit();
 		Dimension screen=kit.getScreenSize();
 		this.setSize(screen.width/2,screen.height/2);
 		this.setLocationByPlatform(true);
-		
-		//ÊµÏÖÂ·¾¶ÎÄ±¾¿ò¿ÉÒÔÖ±½Ó¿ØÖÆÄ¿Â¼Ìø×ª
+
+		//å®ç°è·¯å¾„æ–‡æœ¬æ¡†å¯ä»¥ç›´æ¥æ§åˆ¶ç›®å½•è·³è½¬
 		pathTextToFile();
-		
-		//ÊµÏÖÊó±ê¿ØÖÆÎÄ¼şÏÔÊ¾ÁĞ±íºÍÓÒ¼üÏÔÊ¾²Ëµ¥
+
+		//å®ç°é¼ æ ‡æ§åˆ¶æ–‡ä»¶æ˜¾ç¤ºåˆ—è¡¨å’Œå³é”®æ˜¾ç¤ºèœå•
 		mouseControlFilelist();
-		
-		//ÊµÏÖÓÒ¼ü²Ëµ¥¹¦ÄÜ
+
+		//å®ç°å³é”®èœå•åŠŸèƒ½
 		mouseRightMenuFunction();
-		
-		//¿ØÖÆ×é¼ş°Ú·ÅÎ»ÖÃ
+
+		//æ§åˆ¶ç»„ä»¶æ‘†æ”¾ä½ç½®
 		this.add(filelistShow,BorderLayout.CENTER);
 		this.add(pathPanel, BorderLayout.NORTH);
 	}
-	
+
 	public boolean openFile(String path)
 	{
 		pathPanel.showpath(path);
 		return filelistShow.openFile(path);
 	}
-	
+
 	public boolean deleteFile(String path)
 	{
 		boolean temp= filelistShow.deleteFile(path);
@@ -86,29 +89,37 @@ public class FileFrame extends JFrame{
 		openFile(f.getParent());
 		return temp;
 	}
-	
+
 	public boolean createDir(String parentPath)
 	{
 		boolean temp=filelistShow.createDir(parentPath);
 		openFile(parentPath);
 		return temp;
 	}
-	
+
 	public boolean createTXTfile(String parentPath)
 	{
 		boolean temp=filelistShow.createTXTfile(parentPath);
 		openFile(parentPath);
 		return temp;
 	}
-	
+
+    public boolean ZipFile(String path)
+
+    {
+        boolean temp = filelistShow.ZipFile(path);
+		openFile(path);
+        return temp;
+    }
+
 	private void pathTextToFile()
 	{
 		pathPanel.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String command = e.getActionCommand();
-				if(command.equals("½øÈë"))  //°´ÏÂ°´Å¥¡°½øÈë¡±
+				if(command.equals("è¿›å…¥"))  //æŒ‰ä¸‹æŒ‰é’®â€œè¿›å…¥â€
 				{
 					if(!Objects.equals(filelistShow.getLocalPath(),pathPanel.getPathInput()))
 						openFile(pathPanel.getPathInput());
@@ -117,9 +128,9 @@ public class FileFrame extends JFrame{
 							openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);
 							mouseSelectFileName="";
 						}
-						
+
 				}
-				if(command.equals("·µ»Ø"))   //°´ÏÂ°´Å¥¡±·µ»Ø¡°
+				if(command.equals("è¿”å›"))   //æŒ‰ä¸‹æŒ‰é’®â€è¿”å›â€œ
 				{
 					String backString=pathBackTo(pathPanel.getPathInput());
 					if(!openFile(backString))
@@ -127,19 +138,19 @@ public class FileFrame extends JFrame{
 						openFile(filelistShow.getLocalPath());
 					}
 				}
-				openFile(pathPanel.getPathInput());  //ÔÚÎÄ±¾¿òÖĞ»Ø³µ
+				openFile(pathPanel.getPathInput());  //åœ¨æ–‡æœ¬æ¡†ä¸­å›è½¦
 			}
 		});
 	}
-	
+
 	private void mouseControlFilelist()
 	{
-		
+
 		filelistShow.addJListMouseListener(new MouseAdapter() {
-			@Override 
+			@Override
 			public void mouseClicked(MouseEvent e)
 			{
-				//ÉèÖÃ×ó¼üË«»÷´ò¿ªÎÄ¼ş¼Ğ
+				//è®¾ç½®å·¦é”®åŒå‡»æ‰“å¼€æ–‡ä»¶å¤¹
 				if(filelistShow.getItemCanClick())
 				{
 					if(e.getClickCount()==2 && e.getButton()==MouseEvent.BUTTON1)
@@ -148,101 +159,121 @@ public class FileFrame extends JFrame{
 						mouseSelectFileName="";
 					 }
 				}
-				
-				//ÉèÖÃÓÒ¼üÏÔÊ¾²Ëµ¥
+
+				//è®¾ç½®å³é”®æ˜¾ç¤ºèœå•
 				if(e.getButton()==MouseEvent.BUTTON3)
 			    {
 					popup.show(e.getComponent(), e.getX(), e.getY());
 				}
 			}
 		});
-		
+
 		filelistShow.addJListSelectListener(new ListSelectionListener() {
-			
+
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
+				// TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
 				int i=e.getFirstIndex();
 				mouseSelectFileName=filelistShow.getListFileName(i);
-				
+
 			}
 		});
 	}
-	
-	static public String pathBackTo(String path)  //´¦ÀíÂ·¾¶×Ö·û´®£¬É¾³ı×îºóÒ»¸ö\ºÍÖ®ºóµÄ×Ö·û´®
+
+	static public String pathBackTo(String path)  //å¤„ç†è·¯å¾„å­—ç¬¦ä¸²ï¼Œåˆ é™¤æœ€åä¸€ä¸ª\å’Œä¹‹åçš„å­—ç¬¦ä¸²
 	{
 		StringBuffer temp=new StringBuffer(path);
 		if(temp.length()!=0)
 		{
-			int start=temp.lastIndexOf("\\");  //×ªÒå×Ö·û\\±íÊ¾\
+			int start=temp.lastIndexOf("\\");  //è½¬ä¹‰å­—ç¬¦\\è¡¨ç¤º\
 			if(start!=-1) temp.delete(start, temp.length());
 			if(temp.charAt(temp.length()-1)==':')
 				temp.append('\\');
 		}
 		return temp.toString();
 	}
-	
+
 	public void mouseRightMenuFunction()
 	{
 		ActionListener itemAction=new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
+				// TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
 				String temp = e.getActionCommand();
-				if(temp.equals("´ò¿ª"))
+				if(temp.equals("æ‰“å¼€"))
 				{
-					openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);
+					//openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName); //this is for win
+					openFile(pathPanel.getPathInput()+"/"+mouseSelectFileName);
 				}
-				if(temp.equals("É¾³ı"))
+				if(temp.equals("åˆ é™¤"))
 				{
-					deleteFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);
+					//deleteFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);  //this is for win
+					deleteFile(pathPanel.getPathInput()+"/"+mouseSelectFileName);
 				}
-				if(temp.equals("ĞÂ½¨ÎÄ¼ş¼Ğ"))
+				if(temp.equals("æ–°å»ºæ–‡ä»¶å¤¹"))
 				{
 					createDir(pathPanel.getPathInput());
 				}
-				if(temp.equals("ĞÂ½¨ÎÄ¼ş"))
+				if(temp.equals("æ–°å»ºæ–‡ä»¶"))
 				{
 					createTXTfile(pathPanel.getPathInput());
 				}
-				if(temp.equals("Ë¢ĞÂ"))
+				if(temp.equals("åˆ·æ–°"))
 				{
 					openFile(pathPanel.getPathInput());
 				}
+                if(temp.equals("å‹ç¼©")){
+                   System.out.println("å‹ç¼©");
+                   //this.ZipFile(pathPanel.getPathInput() + "/" + mouseSelectFileName);   //??what do U mean by æ‰¾ä¸åˆ°ç¬¦å·
+                   ZipFile(pathPanel.getPathInput() + "/" + mouseSelectFileName);
+                }
+                if(temp.equals("è§£å‹")){
+                    System.out.println("è§£å‹");
+                }
+                if(temp.equals("åŠ å¯†")){
+                    System.out.println("åŠ å¯†");
+                }
+                if(temp.equals("è§£å¯†")){
+                    System.out.println("è§£å¯†");
+                }
 			}
 		};
-		
-		
+
+
 		popup.addItemListener(0,itemAction);
 		popup.addItemListener(1, itemAction);
 		popup.addItemListener(2, itemAction);
 		popup.addItemListener(3, itemAction);
 		popup.addItemListener(4, itemAction);
+		popup.addItemListener(5, itemAction);
+		popup.addItemListener(6, itemAction);
+		popup.addItemListener(7, itemAction);
+		popup.addItemListener(8, itemAction);
 	}
 }
 
-//ÎÄ¼şÁĞ±íÃæ°å
-class FileListPanel extends JPanel 
+//æ–‡ä»¶åˆ—è¡¨é¢æ¿
+class FileListPanel extends JPanel
 {
 	private DefaultListModel<String> item;
 	private JList<?> filelist;
 	private JScrollPane basepanel;
 	private String localPath;
 	private String[] manyFiles={""};
-	
-	
+
+
 	public FileListPanel()
 	{
 		item=new DefaultListModel<>();
 		filelist=new JList<String>(item);
 		basepanel=new JScrollPane(filelist);
 		localPath=new String();
-		
+
 		this.setLayout(new BorderLayout());
 		this.add(basepanel);
 	}
-	
+
 	public boolean openFile(String path)
 	{
 		item.removeAllElements();
@@ -258,7 +289,7 @@ class FileListPanel extends JPanel
 			else{
 				for(int i=0;i<manyFiles.length;i++)
 				{
-					item.addElement(manyFiles[i]);	
+					item.addElement(manyFiles[i]);
 				}
 			}
 			localPath=path;
@@ -270,7 +301,7 @@ class FileListPanel extends JPanel
 			return false;
 		}
 	}
-	
+
 	public String getListFileName(int i)
 	{
 		File f=new File(localPath);
@@ -279,34 +310,34 @@ class FileListPanel extends JPanel
 		     return manyFiles[i];
 		else return "";
 	}
-	
+
 	public String getLocalPath()
 	{
 		return localPath;
 	}
-	
+
 	public void addJListMouseListener(MouseListener l)
 	{
 		filelist.addMouseListener(l);
 	}
-	
+
 	public void addJListSelectListener(ListSelectionListener l)
 	{
 		filelist.addListSelectionListener(l);
 	}
-	
+
 	public boolean getItemCanClick()
 	{
 		if(item==null) return false;
-		return item.size()!=0 && 
-				!Objects.equals(item.firstElement(),"This is not a Directory"); 
+		return item.size()!=0 &&
+				!Objects.equals(item.firstElement(),"This is not a Directory");
 	}
-	
-	public boolean deleteFile(String path)  //É¾³ıÎÄ¼şµÄ¹«ÓĞ½Ó¿Ú
+
+	public boolean deleteFile(String path)  //åˆ é™¤æ–‡ä»¶çš„å…¬æœ‰æ¥å£
 	{
 		File f=new File(path);
 		if(f.exists() )
-		{  
+		{
 			if(!f.isDirectory())
 				return f.delete();
 			else
@@ -314,11 +345,11 @@ class FileListPanel extends JPanel
 		}
 		return false;
 	}
-	
-	private boolean deleteDirectory(File f)   //µİ¹éÉ¾³ıÄ¿Â¼ÏÂËùÓĞÎÄ¼ş
+
+	private boolean deleteDirectory(File f)   //é€’å½’åˆ é™¤ç›®å½•ä¸‹æ‰€æœ‰æ–‡ä»¶
 	{
 		String [] children = f.list();
-		if(children==null)   return f.delete();  //Ã»ÓĞ×ÓÄ¿Â¼ÔòÖ±½ÓÉ¾³ı
+		if(children==null)   return f.delete();  //æ²¡æœ‰å­ç›®å½•åˆ™ç›´æ¥åˆ é™¤
 		for(String ch : children)
 		{
 			File file=new File(f, ch);
@@ -327,120 +358,161 @@ class FileListPanel extends JPanel
 			else
 				file.delete();
 		}
-		f.delete();  //Ä¿Â¼Îª¿ÕÊ±¿ÉÒÔÖ±½ÓÉ¾³ı
+		f.delete();  //ç›®å½•ä¸ºç©ºæ—¶å¯ä»¥ç›´æ¥åˆ é™¤
 		return true;
 	}
-	
-	public boolean createDir(String parentPath)  //ÔÚparentPathÄ¿Â¼ÏÂ´´½¨ÎÄ¼ş¼Ğ
+
+	public boolean createDir(String parentPath)  //åœ¨parentPathç›®å½•ä¸‹åˆ›å»ºæ–‡ä»¶å¤¹
 	{
 		File f=new File(parentPath);
 		if(!f.exists() || !f.isDirectory())  return false;
 		String [] child=f.list();
-		int i =0;    //¸¸Ä¿Â¼ÏÂÓĞ¶àÉÙ¡°ĞÂ½¨ÎÄ¼ş¼Ğ¡±Ç°×ºµÄÎÄ¼ş
+		int i =0;    //çˆ¶ç›®å½•ä¸‹æœ‰å¤šå°‘â€œæ–°å»ºæ–‡ä»¶å¤¹â€å‰ç¼€çš„æ–‡ä»¶
 		if(child!=null)
 		{
 			for(String ch : child)
-				if(ch.startsWith("ĞÂ½¨ÎÄ¼ş¼Ğ")) i++;
+				if(ch.startsWith("æ–°å»ºæ–‡ä»¶å¤¹")) i++;
 		}
-		File newDir=new File(f, "ĞÂ½¨ÎÄ¼ş¼Ğ"+"("+i+")");
+		File newDir=new File(f, "æ–°å»ºæ–‡ä»¶å¤¹"+"("+i+")");
 		newDir.mkdir();
 		return true;
 	}
-	
+
 	public boolean createTXTfile(String parentPath)
 	{
 		File f=new File(parentPath);
 		if(!f.exists() || !f.isDirectory())  return false;
 		String [] child=f.list();
-		int i =0;    //¸¸Ä¿Â¼ÏÂÓĞ¶àÉÙ¡°ĞÂ½¨ÎÄ¼ş¼Ğ¡±Ç°×ºµÄÎÄ¼ş
+		int i =0;    //çˆ¶ç›®å½•ä¸‹æœ‰å¤šå°‘â€œæ–°å»ºæ–‡ä»¶å¤¹â€å‰ç¼€çš„æ–‡ä»¶
 		if(child!=null)
 		{
 			for(String ch : child)
-				if(ch.startsWith("ĞÂ½¨ÎÄ¼ş")) i++;
+				if(ch.startsWith("æ–°å»ºæ–‡ä»¶")) i++;
 		}
-		File newfile =new File(f, "ĞÂ½¨ÎÄ¼ş"+"("+i+")"+".txt");
+		File newfile =new File(f, "æ–°å»ºæ–‡ä»¶"+"("+i+")"+".txt");
 		try {
 			newfile.createNewFile();
 		} catch (IOException e) {
-			// TODO ×Ô¶¯Éú³ÉµÄ catch ¿é
+			// TODO è‡ªåŠ¨ç”Ÿæˆçš„ catch å—
 			e.printStackTrace();
 		}
 		return true;
 	}
+
+	public boolean ZipFile(String path)  //compress file with Zip algorithm
+    {
+        File f = new File(path);
+        if(f.exists()){
+            if(!f.isDirectory()){
+                try{
+                    FileOutputStream fos = new FileOutputStream("test.zip");
+                    CheckedOutputStream csum =
+                        new CheckedOutputStream(fos, new Adler32());
+                    ZipOutputStream zos = new ZipOutputStream(csum);
+                    BufferedOutputStream out =
+                        new BufferedOutputStream(zos);
+                    zos.putNextEntry(new ZipEntry(path));
+
+                    System.out.println("Writing file test.zip");
+                    BufferedReader in =
+                        new BufferedReader(new FileReader(path));
+                    int c;
+                    while((c = in.read()) != -1)
+                        out.write(c);
+                    in.close();
+                    out.close();
+                }
+                catch(IOException e){
+                    System.out.println("error IOExcemption" + e.toString()) ;
+                }
+            }else{
+                System.out.println("building");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }
 
-//Â·¾¶ÏÔÊ¾Ãæ°åºÍ°´Å¥
+//è·¯å¾„æ˜¾ç¤ºé¢æ¿å’ŒæŒ‰é’®
 class PathPanel extends JPanel
 {
 	JTextField pathtext;
 	JButton enter;
 	JButton back;
 	JPanel buttonPanel;
-	
+
 	public PathPanel()
 	{
 		pathtext=new JTextField();
 		pathtext.setHorizontalAlignment(JTextField.CENTER);
-		enter=new JButton("½øÈë");
-		back=new JButton("·µ»Ø");
+		enter=new JButton("è¿›å…¥");
+		back=new JButton("è¿”å›");
 		buttonPanel=new JPanel();
-		
+
 		buttonPanel.add(enter);
 		buttonPanel.add(back);
-		
+
 		this.setLayout(new BorderLayout());
 		this.add(pathtext,BorderLayout.CENTER);
 		this.add(buttonPanel, BorderLayout.EAST);
 	}
-	 
-	public void showpath(String path)  //ÏÔÊ¾Â·¾¶×Ö·û´®
+
+	public void showpath(String path)  //æ˜¾ç¤ºè·¯å¾„å­—ç¬¦ä¸²
 	{
 		pathtext.setText(path);
 	}
-	
-	public String getPathInput()    //»ñÈ¡Â·¾¶ÎÄ±¾¿òÄÚÈİ
+
+	public String getPathInput()    //è·å–è·¯å¾„æ–‡æœ¬æ¡†å†…å®¹
 	{
 		return pathtext.getText();
 	}
-	
-	
-	public void addActionListener(ActionListener a)  //ÎªÁ½¸ö°´Å¥Ìí¼ÓActionListener¼àÌıÆ÷£¬Ê¹ÓÃÍ¬Ò»¸ö¼àÌıÆ÷¶ÔÏó
+
+
+	public void addActionListener(ActionListener a)  //ä¸ºä¸¤ä¸ªæŒ‰é’®æ·»åŠ ActionListenerç›‘å¬å™¨ï¼Œä½¿ç”¨åŒä¸€ä¸ªç›‘å¬å™¨å¯¹è±¡
 	{
 		enter.addActionListener(a);
 		back.addActionListener(a);
 		pathtext.addActionListener(a);
 	}
-	
+
 }
 
 class MouseRightPopup extends JPopupMenu
 {
 	private JMenuItem[] item;
-	
-	
+
+
 	public MouseRightPopup()
 	{
 		super();
-		item=new JMenuItem[5];
-		
-		item[0]=new JMenuItem("´ò¿ª");
-		item[1]=new JMenuItem("É¾³ı");
-		item[2]=new JMenuItem("ĞÂ½¨ÎÄ¼ş¼Ğ");
-		item[3]=new JMenuItem("ĞÂ½¨ÎÄ¼ş");
-		item[4]=new JMenuItem("Ë¢ĞÂ");
-		
+		item=new JMenuItem[9];
+
+		item[0]=new JMenuItem("æ‰“å¼€");
+		item[1]=new JMenuItem("åˆ é™¤");
+		item[2]=new JMenuItem("æ–°å»ºæ–‡ä»¶å¤¹");
+		item[3]=new JMenuItem("æ–°å»ºæ–‡ä»¶");
+		item[4]=new JMenuItem("åˆ·æ–°");
+		item[5]=new JMenuItem("å‹ç¼©");
+		item[6]=new JMenuItem("è§£å‹");
+		item[7]=new JMenuItem("åŠ å¯†");
+		item[8]=new JMenuItem("è§£å¯†");
+
 		this.add(item[0]);
 		this.add(item[1]);
 		this.add(item[2]);
 		this.add(item[3]);
 		this.add(item[4]);
+		this.add(item[5]);
+		this.add(item[6]);
+		this.add(item[7]);
+		this.add(item[8]);
 	}
-	
+
 	public void addItemListener(int i,ActionListener a)
 	{
 		item[i].addActionListener(a);
 	}
 }
-
-
-

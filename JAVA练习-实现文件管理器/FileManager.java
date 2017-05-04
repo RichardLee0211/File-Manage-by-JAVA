@@ -1,4 +1,4 @@
-package fileManager;
+//package fileManager;
 
 import java.awt.EventQueue;
 import java.io.File;
@@ -8,21 +8,21 @@ import javax.swing.filechooser.FileSystemView;
 
 /**
  *@author wei
- *mainº¯Êı£¬Ö÷³ÌĞòÌå£¬ÊµÏÖÎÄ¼ş¹ÜÀíÆ÷
+ *mainå‡½æ•°ï¼Œä¸»ç¨‹åºä½“ï¼Œå®ç°æ–‡ä»¶ç®¡ç†å™¨
  * */
 
 public class FileManager {
 
 	public static void main(String[] args) {
-		// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
+		// TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
 		EventQueue.invokeLater(new Runnable() {
 			
 			@Override
 			public void run() {
-				// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
+				// TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
 				FileFrame frame=new FileFrame();
 				
-				//ÉèÖÃ³õÊ¼Ä¿Â¼ÎªÏµÍ³Ä¬ÈÏ
+				//è®¾ç½®åˆå§‹ç›®å½•ä¸ºç³»ç»Ÿé»˜è®¤
 				FileSystemView rootview=FileSystemView.getFileSystemView();
 				File root=rootview.getDefaultDirectory();
 				frame.openFile(root.getPath());
