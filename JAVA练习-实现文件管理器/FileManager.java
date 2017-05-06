@@ -16,22 +16,22 @@ public class FileManager {
 	public static void main(String[] args) {
 		// TODO 自动生成的方法存根
 		EventQueue.invokeLater(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				// TODO 自动生成的方法存根
 				FileFrame frame=new FileFrame();
-				
+
 				//设置初始目录为系统默认
 				FileSystemView rootview=FileSystemView.getFileSystemView();
 				File root=rootview.getDefaultDirectory();
-				frame.openFile(root.getPath());
-				
+                frame.openFile(root.getPath() + File.separator + "Code" + File.separator+ "testJava");
+
 				frame.setVisible(true);
 
 			}
 		});
-		
+
 	}
 
 }

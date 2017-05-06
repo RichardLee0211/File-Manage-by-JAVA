@@ -414,34 +414,49 @@ class FileListPanel extends JPanel
     {
         File f = new File(path);
         if(f.exists()){
-            if(!f.isDirectory()){
-                try{
-                    FileOutputStream fos = new FileOutputStream(this.getLocalPath()
-                            + File.pathSeparator + "test.zip");
-                    CheckedOutputStream csum =
-                        new CheckedOutputStream(fos, new Adler32());
-                    ZipOutputStream zos = new ZipOutputStream(csum);
-                    BufferedOutputStream out =
-                        new BufferedOutputStream(zos);
-                    zos.putNextEntry(new ZipEntry(f.getName()));
+            try{
+                FileOutputStream fos = new FileOutputStream(this.getLocalPath()
+                        + File.separator + f.getName() + ".zip");
+                CheckedOutputStream csum =
+                    new CheckedOutputStream(fos, new Adler32());
+                ZipOutputStream zos = new ZipOutputStream(csum);
+                BufferedOutputStream out =
+                    new BufferedOutputStream(zos);
 
-                    System.out.println("Writing file test.zip");
+                if(!f.isDirectory()){
+                    zos.putNextEntry(new ZipEntry(f.getName()));
+                    //deal with output
+                    System.out.println("Writing zip file "+ f.getName());
                     BufferedReader in =
                         new BufferedReader(new FileReader(f));
                     int c;
                     while((c = in.read()) != -1)
                         out.write(c);
                     in.close();
-                    out.close();
                 }
-                catch(IOException e){
-                    System.out.println("error IOExcemption" + e.toString()) ;
+                if(f.isDirectory()){
+                    File lists[] = f.listFiles() ;
+                    InputStream input = null;
+                    int temp =0;
+                    for(int i=0;i<lists.length;i++){
+                        input = new FileInputStream(lists[i]) ;
+                        zos.putNextEntry(new ZipEntry(f.getName()
+                                    +File.separator+lists[i].getName())) ;  // 设置ZipEntry对象
+                        while((temp=input.read())!=-1){ // 读取内容
+                            zos.write(temp) ;    // 压缩输出
+                        }
+                        input.close() ; // 关闭输入流
+                    }
                 }
-            }else{
-                System.out.println("this function is under building");
+                out.close();
+
+            }
+            catch(IOException e){
+                System.out.println("error IOExcemption" + e.toString()) ;
+            }
+            }else{ //if file doesn't exist
                 return false;
             }
-        }
 
         return true;
     }
