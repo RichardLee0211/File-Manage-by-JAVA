@@ -87,7 +87,7 @@ public class FileFrame extends JFrame{
 		boolean temp= filelistShow.deleteFile(path);
 		File f=new File(path);
 		openFile(f.getParent());
-		return temp;
+        return temp;
 	}
 
 	public boolean createDir(String parentPath)
@@ -125,7 +125,8 @@ public class FileFrame extends JFrame{
 						openFile(pathPanel.getPathInput());
 					else
 						{
-							openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);
+							//openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);  //this is for win
+							openFile(pathPanel.getPathInput()+"/"+mouseSelectFileName);
 							mouseSelectFileName="";
 						}
 
@@ -155,7 +156,8 @@ public class FileFrame extends JFrame{
 				{
 					if(e.getClickCount()==2 && e.getButton()==MouseEvent.BUTTON1)
 					{
-						openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);
+						//openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);  //this is for win
+						openFile(pathPanel.getPathInput()+"/"+mouseSelectFileName);
 						mouseSelectFileName="";
 					 }
 				}
@@ -405,17 +407,19 @@ class FileListPanel extends JPanel
         if(f.exists()){
             if(!f.isDirectory()){
                 try{
-                    FileOutputStream fos = new FileOutputStream("test.zip");
+                    //FileOutputStream fos = new FileOutputStream(pathPanel.getPathInput() + "/" + "test.zip");  //why??找不大符号 //!!这是因为pathPanel不是这个类的成员
+                    FileOutputStream fos = new FileOutputStream(this.getLocalPath()
+                            + "/" + "test.zip");
                     CheckedOutputStream csum =
                         new CheckedOutputStream(fos, new Adler32());
                     ZipOutputStream zos = new ZipOutputStream(csum);
                     BufferedOutputStream out =
                         new BufferedOutputStream(zos);
-                    zos.putNextEntry(new ZipEntry(path));
+                    zos.putNextEntry(new ZipEntry(f.getName()));
 
                     System.out.println("Writing file test.zip");
                     BufferedReader in =
-                        new BufferedReader(new FileReader(path));
+                        new BufferedReader(new FileReader(f));
                     int c;
                     while((c = in.read()) != -1)
                         out.write(c);
