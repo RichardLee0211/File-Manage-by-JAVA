@@ -108,7 +108,13 @@ public class FileFrame extends JFrame{
 
     {
         boolean temp = filelistShow.ZipFile(path);
-		openFile(path);
+		openFile(pathPanel.getPathInput());
+        return temp;
+    }
+
+    public boolean UnzipFile(String path){
+        boolean temp = filelistShow.UnzipFile(path);
+		openFile(pathPanel.getPathInput());
         return temp;
     }
 
@@ -126,7 +132,8 @@ public class FileFrame extends JFrame{
 					else
 						{
 							//openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);  //this is for win
-							openFile(pathPanel.getPathInput()+"/"+mouseSelectFileName);
+                            if(mouseSelectFileName != "")
+                                openFile(pathPanel.getPathInput()+ File.separator +mouseSelectFileName);
 							mouseSelectFileName="";
 						}
 
@@ -157,7 +164,7 @@ public class FileFrame extends JFrame{
 					if(e.getClickCount()==2 && e.getButton()==MouseEvent.BUTTON1)
 					{
 						//openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);  //this is for win
-						openFile(pathPanel.getPathInput()+"/"+mouseSelectFileName);
+						openFile(pathPanel.getPathInput()+File.separator+mouseSelectFileName);
 						mouseSelectFileName="";
 					 }
 				}
@@ -182,15 +189,15 @@ public class FileFrame extends JFrame{
 		});
 	}
 
-	static public String pathBackTo(String path)  //处理路径字符串，删除最后一个\和之后的字符串
+	static public String pathBackTo(String path)  //处理路径字符串，删除最后一个separator和之后的字符串
 	{
 		StringBuffer temp=new StringBuffer(path);
 		if(temp.length()!=0)
 		{
-			int start=temp.lastIndexOf("\\");  //转义字符\\表示\
+			int start=temp.lastIndexOf(File.separator);
 			if(start!=-1) temp.delete(start, temp.length());
 			if(temp.charAt(temp.length()-1)==':')
-				temp.append('\\');
+				temp.append(File.separator);
 		}
 		return temp.toString();
 	}
@@ -206,12 +213,12 @@ public class FileFrame extends JFrame{
 				if(temp.equals("打开"))
 				{
 					//openFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName); //this is for win
-					openFile(pathPanel.getPathInput()+"/"+mouseSelectFileName);
+					openFile(pathPanel.getPathInput()+File.separator+mouseSelectFileName);
 				}
 				if(temp.equals("删除"))
 				{
 					//deleteFile(pathPanel.getPathInput()+"\\"+mouseSelectFileName);  //this is for win
-					deleteFile(pathPanel.getPathInput()+"/"+mouseSelectFileName);
+					deleteFile(pathPanel.getPathInput()+File.separator+mouseSelectFileName);
 				}
 				if(temp.equals("新建文件夹"))
 				{
@@ -228,10 +235,12 @@ public class FileFrame extends JFrame{
                 if(temp.equals("压缩")){
                    System.out.println("压缩");
                    //this.ZipFile(pathPanel.getPathInput() + "/" + mouseSelectFileName);   //??what do U mean by 找不到符号
-                   ZipFile(pathPanel.getPathInput() + "/" + mouseSelectFileName);
+                   ZipFile(pathPanel.getPathInput() + File.separator + mouseSelectFileName);
                 }
                 if(temp.equals("解压")){
                     System.out.println("解压");
+                    boolean tmp = UnzipFile(pathPanel.getPathInput() + File.separator  + mouseSelectFileName);
+                    System.out.println("unzip result: " + tmp);
                 }
                 if(temp.equals("加密")){
                     System.out.println("加密");
@@ -407,9 +416,8 @@ class FileListPanel extends JPanel
         if(f.exists()){
             if(!f.isDirectory()){
                 try{
-                    //FileOutputStream fos = new FileOutputStream(pathPanel.getPathInput() + "/" + "test.zip");  //why??找不大符号 //!!这是因为pathPanel不是这个类的成员
                     FileOutputStream fos = new FileOutputStream(this.getLocalPath()
-                            + "/" + "test.zip");
+                            + File.pathSeparator + "test.zip");
                     CheckedOutputStream csum =
                         new CheckedOutputStream(fos, new Adler32());
                     ZipOutputStream zos = new ZipOutputStream(csum);
@@ -430,12 +438,39 @@ class FileListPanel extends JPanel
                     System.out.println("error IOExcemption" + e.toString()) ;
                 }
             }else{
-                System.out.println("building");
+                System.out.println("this function is under building");
                 return false;
             }
         }
 
         return true;
+    }
+
+
+    public boolean UnzipFile(String path){
+        boolean isSuccessful = true;
+        try {
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path));
+            ZipInputStream zis = new ZipInputStream(bis);
+
+            BufferedOutputStream bos = null;
+            ZipEntry entry = null;
+
+            while ((entry=zis.getNextEntry()) != null) {
+                String entryName = entry.getName();
+                bos = new BufferedOutputStream(new FileOutputStream(new File(path).getParent() + File.separator +entryName));
+                int b = 0;
+                while ((b = zis.read()) != -1) {
+                    bos.write(b);
+                }
+                bos.flush();
+                bos.close();
+            }
+            zis.close();
+        } catch (IOException e) {
+            isSuccessful = false;
+        }
+        return isSuccessful;
     }
 
 }
