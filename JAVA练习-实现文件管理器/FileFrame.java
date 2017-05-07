@@ -118,6 +118,18 @@ public class FileFrame extends JFrame{
         return temp;
     }
 
+    public boolean EncFile(String file){
+        boolean temp = filelistShow.EncFile(file);
+		openFile(pathPanel.getPathInput());
+        return temp;
+    }
+
+    public boolean DecFile(String file){
+        boolean temp = filelistShow.DecFile(file);
+		openFile(pathPanel.getPathInput());
+        return temp;
+    }
+
 	private void pathTextToFile()
 	{
 		pathPanel.addActionListener(new ActionListener() {
@@ -208,7 +220,6 @@ public class FileFrame extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO 自动生成的方法存根
 				String temp = e.getActionCommand();
 				if(temp.equals("打开"))
 				{
@@ -244,9 +255,13 @@ public class FileFrame extends JFrame{
                 }
                 if(temp.equals("加密")){
                     System.out.println("加密");
+                    boolean tmp = EncFile(pathPanel.getPathInput() + File.separator  + mouseSelectFileName);
+                    System.out.println("encFile result: " + tmp);
                 }
                 if(temp.equals("解密")){
                     System.out.println("解密");
+                    boolean tmp = DecFile(pathPanel.getPathInput() + File.separator  + mouseSelectFileName);
+                    System.out.println("DecFile result: " + tmp);
                 }
 			}
 		};
@@ -483,10 +498,77 @@ class FileListPanel extends JPanel
             }
             zis.close();
         } catch (IOException e) {
+            System.out.println(e.toString());
             isSuccessful = false;
         }
         return isSuccessful;
     }
+
+    public boolean EncFile(String file){
+        int dataOfFile = 0;
+        int numOfEncAndDec = 0x99;
+        File srcFile = new File(file);
+        File encFile = new File(file + ".encFile");
+        try{
+            if(!srcFile.exists()){
+                System.out.println("source file not exixt");
+                return false;
+            }
+
+            if(!encFile.exists()){
+                System.out.println("encrypt file created");
+                encFile.createNewFile();
+            }
+            InputStream fis  = new FileInputStream(srcFile);
+            OutputStream fos = new FileOutputStream(encFile);
+
+            while ((dataOfFile = fis.read()) > -1) {
+                fos.write(dataOfFile^numOfEncAndDec);
+            }
+
+            fis.close();
+            fos.flush();
+            fos.close();
+        }catch(Exception e){
+            System.out.println("Exception in encFile: "+ e.toString());
+        }
+        return true;
+    }
+
+    public boolean DecFile(String file){
+        int dataOfFile = 0;
+        int numOfEncAndDec = 0x99;
+        File encFile = new File(file);
+        File decFile = new File(file + ".decFile");
+        try{
+            if(!encFile.exists()){
+                System.out.println("encrypt file not exixt");
+                return false;
+            }
+
+            if(!decFile.exists()){
+                System.out.println("decrypt file created");
+                decFile.createNewFile();
+            }
+
+            InputStream fis  = new FileInputStream(encFile);
+            OutputStream fos = new FileOutputStream(decFile);
+
+            while ((dataOfFile = fis.read()) > -1) {
+                fos.write(dataOfFile^numOfEncAndDec);
+            }
+
+            fis.close();
+            fos.flush();
+            fos.close();
+
+        }catch(Exception e){
+            System.out.println("Exception in DecFile: "+ e.toString());
+            return false;
+        }
+        return true;
+    }
+
 
 }
 
