@@ -130,6 +130,12 @@ public class FileFrame extends JFrame{
         return temp;
     }
 
+    public boolean copy(String src, String des){
+        boolean temp = filelistShow.copy(src, des);
+		openFile(pathPanel.getPathInput());
+        return temp;
+    }
+
 	private void pathTextToFile()
 	{
 		pathPanel.addActionListener(new ActionListener() {
@@ -263,6 +269,19 @@ public class FileFrame extends JFrame{
                     boolean tmp = DecFile(pathPanel.getPathInput() + File.separator  + mouseSelectFileName);
                     System.out.println("DecFile result: " + tmp);
                 }
+                if(temp.equals("复制到")){
+                   System.out.println("复制到");
+                   System.out.println("input your destination");
+                   try{
+                       BufferedReader br = new BufferedReader(
+                               new InputStreamReader(System.in));
+                       String des = br.readLine();
+                       boolean tmp = copy(pathPanel.getPathInput() + File.separator + mouseSelectFileName, des);
+                       System.out.println("copy result: " + tmp);
+                   }catch(IOException ee){
+                       System.out.println(ee.toString());
+                   }
+                }
 			}
 		};
 
@@ -276,6 +295,7 @@ public class FileFrame extends JFrame{
 		popup.addItemListener(6, itemAction);
 		popup.addItemListener(7, itemAction);
 		popup.addItemListener(8, itemAction);
+		popup.addItemListener(9, itemAction);
 	}
 }
 
@@ -570,6 +590,61 @@ class FileListPanel extends JPanel
     }
 
 
+    public boolean copy(String src, String des) {
+
+        File file1=new File(src);
+        if(!file1.isDirectory())
+            return fileCopy(src, des);
+        File[] fs=file1.listFiles();
+        File file2=new File(des);
+        if(!file2.exists()){
+            file2.mkdirs();
+        }
+        for (File f : fs) {
+            copy(f.getPath(),des+File.separator+f.getName());
+        }
+        return true;
+    }
+
+    /**
+     * 文件拷贝的方法
+     */
+    private boolean fileCopy(String src, String des) {
+
+        if(!new File(src).exists())
+            return false;
+
+        BufferedReader br=null;
+        PrintStream ps=null;
+
+        try {
+            br=new BufferedReader(new InputStreamReader(new FileInputStream(src)));
+            ps=new PrintStream(new FileOutputStream(des));
+            String s=null;
+            while((s=br.readLine())!=null){
+                ps.println(s);
+                ps.flush();
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }finally{
+
+            try {
+                if(br!=null)  br.close();
+                if(ps!=null)  ps.close();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
+
 }
 
 //路径显示面板和按钮
@@ -624,7 +699,7 @@ class MouseRightPopup extends JPopupMenu
 	public MouseRightPopup()
 	{
 		super();
-		item=new JMenuItem[9];
+		item=new JMenuItem[10];
 
 		item[0]=new JMenuItem("打开");
 		item[1]=new JMenuItem("删除");
@@ -635,6 +710,7 @@ class MouseRightPopup extends JPopupMenu
 		item[6]=new JMenuItem("解压");
 		item[7]=new JMenuItem("加密");
 		item[8]=new JMenuItem("解密");
+		item[9]=new JMenuItem("复制到");
 
 		this.add(item[0]);
 		this.add(item[1]);
@@ -645,6 +721,7 @@ class MouseRightPopup extends JPopupMenu
 		this.add(item[6]);
 		this.add(item[7]);
 		this.add(item[8]);
+		this.add(item[9]);
 	}
 
 	public void addItemListener(int i,ActionListener a)
