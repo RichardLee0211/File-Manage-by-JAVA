@@ -30,6 +30,7 @@ import javax.swing.event.ListSelectionListener;
 /**
  *
  * @author wei
+ * developed by richardlee0211
  *	实现文件管理器窗口
  *	FileFrame 窗口框架
  *	FileListPanel 文件列表面板

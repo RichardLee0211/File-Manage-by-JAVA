@@ -8,6 +8,7 @@ import javax.swing.filechooser.FileSystemView;
 
 /**
  *@author wei
+ * developed by richardlee0211
  *main函数，主程序体，实现文件管理器
  * */
 
